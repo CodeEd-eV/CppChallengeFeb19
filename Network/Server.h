@@ -51,6 +51,8 @@ public:
 
     void init(std::uint32_t timeout = 5);
 
+    void shutdown();
+
     socket_iterator begin();
 
     socket_iterator end();

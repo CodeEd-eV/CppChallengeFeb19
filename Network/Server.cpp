@@ -51,6 +51,20 @@ void Server::init(std::uint32_t tm) {
 
 }
 
+void Server::shutdown() {
+
+#ifdef _WIN32
+
+    ::shutdown(listenSocket, SD_BOTH);
+
+#else
+
+    ::shutdown(listenSocket, SHUT_RDWR);
+
+#endif
+
+}
+
 Server::socket_iterator Server::begin() {
 
     auto it = socket_iterator(*this);
@@ -70,6 +84,9 @@ Server::socket_iterator Server::end() {
 SOCKET_TYPE Server::accept() {
 
     auto asock =  ::accept(listenSocket, nullptr, nullptr);
+    if(asock == NET_SOCK_ERR) {
+        return asock;
+    }
 
 
 #ifdef _WIN32
