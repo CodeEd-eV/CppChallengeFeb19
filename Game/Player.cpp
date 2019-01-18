@@ -6,7 +6,7 @@
 
 LLGameInfo MakeGameInfo(const ConnectFour& cf, const std::string& plname1,
                         FIELD_STATE col1, const std::string& plname2, FIELD_STATE col2,
-                        GAME_RESULT result, RESULT_REASON rr, bool playAgain) {
+                        GAME_RESULT result, RESULT_REASON rr) {
 
     LLGameInfo gi = {0};
 
@@ -20,14 +20,13 @@ LLGameInfo MakeGameInfo(const ConnectFour& cf, const std::string& plname1,
 
     gi.Result = result;
     gi.Reason = rr;
-    gi.PlayAgain = playAgain;
 
     return gi;
 
 }
 
 
-const std::string& Player::getName() const {
+const std::string& Player::getName() const noexcept {
 
     return playerPtr->getName();
 
@@ -39,22 +38,33 @@ std::uint32_t Player::chooseMove(ConnectFour &cf) {
 
 }
 
-FIELD_STATE  Player::getColor() const {
+FIELD_STATE  Player::getColor() const noexcept {
 
     return playerPtr->getColor();
 
 }
 
-void Player::tellGameState(ConnectFour &cf, const Player &other, GAME_RESULT result, RESULT_REASON rr, bool playAgain) {
+void Player::tellGameState(ConnectFour &cf, const Player &other, GAME_RESULT result, RESULT_REASON rr) {
 
-    playerPtr->tellGameState(cf, other, result, rr, playAgain);
+    playerPtr->tellGameState(cf, other, result, rr);
 
 
 }
 
-void Player::setColor(FIELD_STATE col) {
+void Player::setColor(FIELD_STATE col) noexcept {
 
     playerPtr->setColor(col);
+
+}
+
+
+constexpr PlayerError::PlayerError(const char *cc) noexcept : error(cc) {
+
+}
+
+const char* PlayerError::what() const {
+
+    return error;
 
 }
 
@@ -67,7 +77,8 @@ Player MakeRandomAIPlayer(FIELD_STATE color, std::uint32_t pnr) {
     public:
 
         explicit RandomPlayer(std::string nm) :
-                name(std::move(nm)), eng(std::chrono::system_clock::now().time_since_epoch().count()) {
+                name(std::move(nm)), eng(static_cast<std::uint32_t>
+                                         (std::chrono::system_clock::now().time_since_epoch().count())) {
 
         }
 
@@ -100,7 +111,7 @@ Player MakeRandomAIPlayer(FIELD_STATE color, std::uint32_t pnr) {
     private:
 
         std::default_random_engine eng;
-        std::uniform_int_distribution<std::uint32_t> dis{0, 3};//{0, ConnectFour::WIDTH<std::uint32_t> - 1};
+        std::uniform_int_distribution<std::uint32_t> dis{0, ConnectFour::WIDTH<std::uint32_t> - 1};
 
         std::string name;
 

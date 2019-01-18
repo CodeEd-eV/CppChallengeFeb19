@@ -12,22 +12,6 @@
 #include <exception>
 #include <memory>
 
-class InvalidMove : std::exception {
-public:
-
-    InvalidMove() = default;
-
-    explicit InvalidMove(const char* err);
-
-    const char* what() const noexcept override;
-
-private:
-
-    const char* msg = nullptr;
-
-};
-
-
 enum class FIELD_STATE : std::uint8_t {
 
     UNSET = 0,
@@ -135,7 +119,6 @@ struct alignas(1) LLGameInfo {
 
     //Ignore, when Result is CONTINUE!
     RESULT_REASON Reason;
-    bool PlayAgain;
 
 };
 
@@ -144,8 +127,7 @@ struct alignas(1) LLGameInfo {
 //checks if the game is over and who has won it
 GAME_RESULT CheckConnectFour(const ConnectFour& ccf);
 
-//Throws invalid Move
-void Insert(ConnectFour& ccf, FIELD_STATE fs, std::uint32_t col);
+RESULT_REASON Insert(ConnectFour& ccf, FIELD_STATE fs, std::uint32_t col);
 
 
 

@@ -17,13 +17,16 @@ public:
 
     std::uint32_t chooseMove(ConnectFour& cf) {
 
-        return 0;
+        char mv[2] = {0};
+        connection.receive(mv);
+        return (std::uint32_t) std::atoi(mv);
+
 
     }
 
     void tellGameState(const LLGameInfo& gameInfo) {
 
-        //ignore
+        std::cout << "GO!" << std::endl;
 
     }
 
@@ -59,27 +62,14 @@ std::array<Player, 2> MakePlayers(ClientPlayer&& cp, std::uint32_t config) {
 
 RESULT_REASON Move(ConnectFour& cf, Player& player, Player& other) {
 
-    player.tellGameState(cf, other, GAME_RESULT::CONTINUE, RESULT_REASON::REGULAR, true);
+    player.tellGameState(cf, other, GAME_RESULT::CONTINUE, RESULT_REASON::REGULAR);
     if(auto mv = player.chooseMove(cf); mv != Player::TIMEOUT_MOVE) {
 
-        try{
-
-            Insert(cf, player.getColor(), mv);
-
-        }catch (const InvalidMove&) {
-
-            return RESULT_REASON::IRREGULAR_MOVE;
-
-        }
-
-    }
-    else {
-
-        return RESULT_REASON::TIMEOUT;
+        return Insert(cf, player.getColor(), mv);
 
     }
 
-    return RESULT_REASON::REGULAR;
+    return RESULT_REASON::TIMEOUT;
 
 }
 
@@ -90,8 +80,6 @@ int main() {
 
     std::uint32_t ConfigCounter = 0; //This is used to generate alternating game states, like who begins with which colour
     for (auto refConnection : server) {
-
-        std::cout << "Start Game" << std::endl;
 
         std::thread([connection = std::move(refConnection.get())] (std::uint32_t config) mutable {
 
@@ -107,22 +95,32 @@ int main() {
             while(!GameOver) {
                 for (int i = 0; i < 2; i++) {
 
-                    if (auto result = Move(field, player[i], player[(i + 1) % 2]); result != RESULT_REASON::REGULAR) {
-                        auto winner =
-                                player[i].getColor() == FIELD_STATE::YELLOW ? GAME_RESULT::RED : GAME_RESULT::YELLOW;
-                        player[0].tellGameState(field, player[1], winner, result, true);
-                        player[1].tellGameState(field, player[0], winner, result, true);
-                        GameOver = true;
-                        break;
+                    try {
 
+                        if (auto result = Move(field, player[i], player[(i + 1) % 2]); result !=
+                                                                                       RESULT_REASON::REGULAR) {
+                            auto winner =
+                                    player[i].getColor() == FIELD_STATE::YELLOW ? GAME_RESULT::RED
+                                                                                : GAME_RESULT::YELLOW;
+                            player[0].tellGameState(field, player[1], winner, result);
+                            player[1].tellGameState(field, player[0], winner, result);
+                            GameOver = true;
+                            break;
+
+                        }
+
+                    } catch (const PlayerError&) {
+                        //Player[i] lost the connection and has lost the game. We notify the winner with an IRREGULAR_MOVE
+                        auto winner = player[i].getColor() == FIELD_STATE::YELLOW ? GAME_RESULT::RED : GAME_RESULT::YELLOW;
+                        player[(i + 1) % 2].tellGameState(field, player[i], winner, RESULT_REASON::IRREGULAR_MOVE);
+                        return;
                     }
 
                     if (auto result = CheckConnectFour(field); result != GAME_RESULT::CONTINUE) {
-                        player[0].tellGameState(field, player[1], result, RESULT_REASON::REGULAR, true);
-                        player[1].tellGameState(field, player[0], result, RESULT_REASON::REGULAR, true);
+                        player[0].tellGameState(field, player[1], result, RESULT_REASON::REGULAR);
+                        player[1].tellGameState(field, player[0], result, RESULT_REASON::REGULAR);
                         GameOver = true;
                         break;
-
                     }
                 }
 

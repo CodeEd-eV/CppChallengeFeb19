@@ -49,17 +49,6 @@ bool Column::insert(FIELD_STATE coin) {
 
 
 
-
-InvalidMove::InvalidMove(const char *err) : msg(err) {
-
-}
-
-const char* InvalidMove::what() const noexcept {
-
-    return msg;
-
-}
-
 GAME_RESULT CheckConnectFour(const ConnectFour& ccf) {
 
     bool unsetFieldFound = false;
@@ -117,17 +106,19 @@ GAME_RESULT CheckConnectFour(const ConnectFour& ccf) {
 
 }
 
-void Insert(ConnectFour& ccf, FIELD_STATE fs, std::uint32_t col) {
+RESULT_REASON Insert(ConnectFour& ccf, FIELD_STATE fs, std::uint32_t col) {
 
     if (col < 0 || ccf.WIDTH<decltype(col)> <= col) {
-        throw InvalidMove("Column does not exist");
+        return RESULT_REASON::IRREGULAR_MOVE;
     }
 
     auto column = ccf[col];
 
     if(!column.insert(fs)) {
-        throw InvalidMove("Insert failed: Column is full!");
+        return RESULT_REASON::IRREGULAR_MOVE;
     }
+
+    return RESULT_REASON::REGULAR;
 
 }
 

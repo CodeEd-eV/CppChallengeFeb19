@@ -56,6 +56,59 @@ constexpr int SOCKET_ERROR = -1;
 constexpr auto NET_SOCK_ERR = static_cast<SOCKET_TYPE>(SOCKET_ERROR);
 
 
+enum class FIELD_STATE : std::uint8_t {
+
+    UNSET = 0,
+    YELLOW = 1,
+    RED = 2,
+
+};
+
+enum class GAME_RESULT : std::uint8_t {
+
+    YELLOW,
+    RED,
+    DRAW,
+    CONTINUE
+
+};
+
+enum class RESULT_REASON : std::uint8_t {
+
+    REGULAR, //Regular game over, either it is a draw or the winner team connected four
+    TIMEOUT, //The looser team did not send a move command within 5 seconds
+    IRREGULAR_MOVE, //The looser team send an invalid command
+
+};
+
+class GameInfo {
+public:
+
+    class Player {
+        std::string Name;
+        FIELD_STATE Color; //This value is either YELLOW or RED, never UNSET!
+    }Player1, Player2;
+
+    //Indicates if the game is over and who has won it, otherwise its value is GAME_RESULT::CONTINUE
+    GAME_RESULT Result;
+
+    /*
+     * The field is stored in column major order!
+     * [0][0], [1][0], [2][0], .... , [6][0] <-- Top Row
+     * [0][1], [1][1], .....        , [6][1]
+     * [0][2], [1][2], .....
+     * .....
+     * .....
+     * [0][6], [1][6], .....         , [6][6] <-- Bottom Row
+     */
+    FIELD_STATE Field[7][7];
+
+    //Ignore, when Result is CONTINUE
+    RESULT_REASON Reason;
+
+
+
+};
 
 
 

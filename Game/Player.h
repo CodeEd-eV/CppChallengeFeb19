@@ -10,7 +10,23 @@
 #include <memory>
 #include <string>
 #include <limits>
+#include <exception>
 #undef max
+
+
+class PlayerError : public std::exception {
+public:
+
+    explicit constexpr PlayerError(const char* cc = nullptr) noexcept;
+
+    const char* what() const override;
+
+private:
+
+    const char* error;
+
+};
+
 
 //Type erasure pattern
 class Player {
@@ -28,13 +44,13 @@ public:
 
     std::uint32_t chooseMove(ConnectFour& cf);
 
-    void tellGameState(ConnectFour& cf, const Player& other, GAME_RESULT result, RESULT_REASON rr, bool playAgain);
+    void tellGameState(ConnectFour& cf, const Player& other, GAME_RESULT result, RESULT_REASON rr);
 
-    const std::string& getName() const;
+    const std::string& getName() const noexcept;
 
-    FIELD_STATE getColor() const;
+    FIELD_STATE getColor() const noexcept;
 
-    void setColor(FIELD_STATE col);
+    void setColor(FIELD_STATE col) noexcept;
 
 private:
 
@@ -43,13 +59,13 @@ private:
 
         virtual std::uint32_t chooseMove(ConnectFour& cf) = 0;
 
-        virtual void tellGameState(ConnectFour& cf, const Player& other, GAME_RESULT result, RESULT_REASON rr, bool playAgain) = 0;
+        virtual void tellGameState(ConnectFour& cf, const Player& other, GAME_RESULT result, RESULT_REASON rr) = 0;
 
-        virtual const std::string& getName() const = 0;
+        virtual const std::string& getName() const noexcept = 0;
 
-        virtual FIELD_STATE getColor() const = 0;
+        virtual FIELD_STATE getColor() const noexcept = 0;
 
-        virtual void setColor(FIELD_STATE col) = 0;
+        virtual void setColor(FIELD_STATE col) noexcept = 0;
 
         virtual ~Concept() = default;
 
@@ -63,13 +79,13 @@ private:
 
         std::uint32_t chooseMove(ConnectFour& cf) override;
 
-        void tellGameState(ConnectFour& cf, const Player& other, GAME_RESULT result, RESULT_REASON rr, bool playAgain) override;
+        void tellGameState(ConnectFour& cf, const Player& other, GAME_RESULT result, RESULT_REASON rr) override;
 
-        const std::string& getName() const override;
+        const std::string& getName() const noexcept override;
 
-        FIELD_STATE  getColor() const override;
+        FIELD_STATE  getColor() const noexcept override;
 
-        void setColor(FIELD_STATE col) override;
+        void setColor(FIELD_STATE col) noexcept override;
 
     private:
 
@@ -86,7 +102,7 @@ private:
 
 LLGameInfo MakeGameInfo(const ConnectFour& cf, const std::string& plname1,
                         FIELD_STATE col1, const std::string& plname2, FIELD_STATE col2,
-                        GAME_RESULT result, RESULT_REASON rr, bool playAgain);
+                        GAME_RESULT result, RESULT_REASON rr);
 
 Player MakeRandomAIPlayer(FIELD_STATE color, std::uint32_t plnr);
 

@@ -74,7 +74,7 @@ SOCKET_TYPE Server::accept() {
 
 #ifdef _WIN32
 
-    DWORD timeout = recvTimeout;
+    DWORD timeout = 1000 * recvTimeout;
 
 #else
 

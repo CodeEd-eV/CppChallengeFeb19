@@ -6,6 +6,7 @@
 #define NETINIT_H
 
 #include <cstdint>
+#include <type_traits>
 
 
 //Some differences between Windows and *nix operating systems have to be considered
