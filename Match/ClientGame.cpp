@@ -70,7 +70,7 @@ RESULT_REASON Move(ConnectFour& cf, Player& player, Player& other) {
 
 #include <iostream>
 
-void SingleGame(std::array<Player, 2> player) {
+void SingleGame(std::array<Player, 2>& player) {
 
     ConnectFour field;
     bool GameOver = false;
@@ -100,7 +100,7 @@ void SingleGame(std::array<Player, 2> player) {
                 auto winner = player[i].getColor() == FIELD_STATE::YELLOW ? GAME_RESULT::RED : GAME_RESULT::YELLOW;
                 player[(i + 1) % 2].tellGameState(field, player[i], winner, RESULT_REASON::IRREGULAR_MOVE);
                 std::cout << player[i].getName() << " lost connection!" << std::endl;
-                return;
+                throw;
             }
 
             if (auto result = CheckConnectFour(field); result != GAME_RESULT::CONTINUE) {

@@ -18,33 +18,44 @@
 
 struct Game {
 
+    bool Finished;
+
     std::string TeamNames[2];
 
     std::uint32_t  Points[2];
 
 };
 
+std::vector<std::string> ReadNamesFromFile(std::string filepath);
+
 class MatchMaking {
 public:
 
+    explicit MatchMaking(const std::vector<std::string>& names);
+
     void checkinNewPlayer(Player&& cp);
 
-    void pendingAgain(Player&& cp);
+    void checkoutPlayer(std::string name);
 
-    void scheduleMatches();
+    void setAsPending(Player&& cp1);
+
+    void lookForMatches();
 
     void executeCommand(std::string cmd);
 
 private:
 
+    void scheduleMatch(Player&& cp1, Player&& cp2);
+
+    void setMatchResult(const std::string& p1, const std::string& p2, int pts1, int pts2);
+
     std::mutex mtx;
 
     std::unordered_set<std::string> names;
 
-    std::vector<Player> pendingPlayers;
+    std::list<Player> pendingPlayers;
 
-    std::vector<std::unique_ptr<Game>> openGames;
-    std::vector<std::unique_ptr<Game>> finishedGames;
+    std::vector<Game> games;
 
 };
 

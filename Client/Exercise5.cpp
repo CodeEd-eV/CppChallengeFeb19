@@ -1,9 +1,9 @@
 //
-// Created by Oliver on 20-Jan-19.
+// Created by Oliver on 18-Jan-19.
 //
 
 
-//Very naive and simple solution to exercise2!
+//Very naive and simple solution to exercise4!
 
 #ifdef _WIN32
 
@@ -115,8 +115,8 @@ public:
 
 void PrintGameInfo(GameInfo gi) {
 
-    std::cout << "Player1: " << gi.Player1.Name << ((gi.Player1.Color == FIELD_STATE::RED) ? " Red\n" : " Yellow\n");
-    std::cout << "Player2: " << gi.Player2.Name << ((gi.Player2.Color == FIELD_STATE::RED) ? " Red\n" : " Yellow\n");
+    std::cout << "Player1: " << gi.Player1.Name << ((gi.Player1.Color == FIELD_STATE::RED) ? " RED\n" : " YELLOW\n");
+    std::cout << "Player2: " << gi.Player2.Name << ((gi.Player2.Color == FIELD_STATE::RED) ? " RED\n" : " Yellow\n");
 
     switch(gi.Result) {
         case GAME_RESULT::CONTINUE:
@@ -294,26 +294,51 @@ private:
 };
 
 
+int SelectMove(GameInfo gi) {
+
+    //Chooses the first free column
+    for (int i = 0; i < 6; i++) {
+
+        if(gi.Field[i][0] == FIELD_STATE::UNSET)
+            return i;
+
+    }
+
+}
+
+
 int main() {
 
     Connection conn = Connection(40596, "127.0.0.1");
-
     if(conn) {
 
         conn.sendString("{MyTeamName}");
 
         GameInfo gameInfo;
-        conn.receive(&gameInfo);
+        while(conn.receive(&gameInfo)) { //Try to play again.
 
-        PrintGameInfo(gameInfo);
+            PrintGameInfo(gameInfo);
+            conn.sendInt(SelectMove(gameInfo));
 
+            while (true) {
 
+                conn.receive(&gameInfo);
+
+                if (gameInfo.Result != GAME_RESULT::CONTINUE) {
+                    break;
+                }
+
+                PrintGameInfo(gameInfo);
+                conn.sendInt(SelectMove(gameInfo));
+
+            }
+
+            std::cout << "Game Over!\n";
+            PrintGameInfo(gameInfo);
+
+        }
 
     }
-    else {
-        std::cout << "Failed to connect" <<std::endl;
-    }
-
 
     return 0;
 

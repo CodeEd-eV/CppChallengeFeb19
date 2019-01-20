@@ -22,6 +22,7 @@ endif(UNIX)
 add_executable(ex2 Client/Exercise2.cpp)
 add_executable(ex3 Client/Exercise3.cpp)
 add_executable(ex4 Client/Exercise4.cpp)
+add_executable(ex5 Client/Exercise5.cpp)
 
 
 #add_executable(ManualClient)
