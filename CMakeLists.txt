@@ -7,6 +7,12 @@ add_executable(ConnectFourServer GameServer.cpp Game/ConnectFour.cpp Game/Connec
 
 #add_executable(CompetetiveServer CompetitiveServer.cpp Game/ConnectFourField.h Game/ConnectFourField.cpp Game/GameRule.cpp Game/GameRule.h)
 
+
+add_executable(ex2 Client/Exercise2.cpp)
+add_executable(ex3 Client/Exercise3.cpp)
+add_executable(ex4 Client/Exercise4.cpp)
+
+
 #add_executable(ManualClient)
 
 #add_executable(AutoClient)

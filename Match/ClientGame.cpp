@@ -15,15 +15,17 @@ ClientPlayer::ClientPlayer(std::string nm, Connection&& con) : name(std::move(nm
 
 std::uint32_t ClientPlayer::chooseMove(ConnectFour& cf) {
 
-    char mv[2] = {0};
-    connection.receive(mv);
-    return (std::uint32_t) std::atoi(mv);
+    std::uint32_t x;
+    connection.receive(x);
+    return x;
 
 
 }
 
 void ClientPlayer::tellGameState(const LLGameInfo& gameInfo) {
 
+    connection.send(gameInfo);
+    
 }
 
 const std::string& ClientPlayer::getName() const {

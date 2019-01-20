@@ -51,7 +51,7 @@ using SOCKET_TYPE = int;
 
 #endif //_WIN32
 
-
+#include <string>
 #include <iostream>
 
 //Start reading here, ignore above code.
@@ -85,6 +85,7 @@ class GameInfo {
 public:
 
     class Player {
+    public:
         std::string Name;
         FIELD_STATE Color; //This value is either YELLOW or RED, never UNSET!
     }Player1, Player2;
@@ -114,8 +115,8 @@ public:
 void PrintGameInfo(GameInfo gi) {
 
 
-    std::cout << "Player1: " << gi.Player1.Name << gi.Player1.Color == FIELD_STATE::RED ? " RED\n" : " YELLOW\n";
-    std::cout << "Player2: " << gi.Player2.Name << gi.Player2.Color == FIELD_STATE::RED ? " RED\n" : " Yellow\n";
+    std::cout << "Player1: " << gi.Player1.Name << ((gi.Player1.Color == FIELD_STATE::RED) ? " RED\n" : " YELLOW\n");
+    std::cout << "Player2: " << gi.Player2.Name << ((gi.Player2.Color == FIELD_STATE::RED) ? " RED\n" : " Yellow\n");
 
     switch(gi.Result) {
         case GAME_RESULT::CONTINUE:
@@ -144,7 +145,7 @@ void PrintGameInfo(GameInfo gi) {
                     break;
 
                 case RESULT_REASON::REGULAR:
-                    std::cout << "Red won\n"
+                    std::cout << "Red won\n";
                     break;
 
                 case RESULT_REASON::TIMEOUT:
@@ -184,6 +185,7 @@ void PrintGameInfo(GameInfo gi) {
 
 
 class Connection {
+public:
 
     Connection(std::uint16_t port, std::string ip) {
 
@@ -195,12 +197,17 @@ class Connection {
 
             sockaddr_in serverAddr;
             serverAddr.sin_family = AF_INET;
-            serverAddr.sin_addr.s_addr = inAddr; //inet_addr works too, but is deprected!
-            serverAdder.sin_port = htons(port);
+            serverAddr.sin_addr = inAddr; //inet_addr works too, but is deprected!
+            serverAddr.sin_port = htons(port);
 
             if(connect(sock, reinterpret_cast<sockaddr*>(&serverAddr), sizeof(serverAddr)) == -1) {
 
-                ~Connect(); //Not very nice code, but it works
+#ifdef _WIN32
+                closesocket(sock);
+#else
+                close(sock);
+#endif
+                sock = -1;
 
             }
 
@@ -211,7 +218,7 @@ class Connection {
 
     void sendInt(int i) {
 
-        send(sock, &i, sizeof(i), 0);
+        send(sock, reinterpret_cast<char*>(&i), sizeof(i), 0);
 
     }
 
@@ -263,7 +270,7 @@ class Connection {
         gi->Player1.Color = llgi.Player[0].Color;
         gi->Player1.Name = llgi.Player[0].Name;
         gi->Player2.Color = llgi.Player[1].Color;
-        gi->Player2.Name = llgi.Player[1].Color;
+        gi->Player2.Name = llgi.Player[1].Name;
         gi->Result = llgi.Result;
         std::memcpy(gi->Field, llgi.Field, sizeof(LLGameInfo::Field));
         gi->Reason = llgi.Reason;
@@ -275,7 +282,7 @@ class Connection {
 
     operator bool() {
 
-        sock != static_cast<decltype(sock)>(-1);
+        return sock != static_cast<decltype(sock)>(-1);
 
     }
 
@@ -291,7 +298,7 @@ int SelectMove(GameInfo gi) {
     //Chooses the first free column
     for (int i = 0; i < 6; i++) {
 
-        if(gi[i][0] == FIELD_STATE::UNSET)
+        if(gi.Field[i][0] == FIELD_STATE::UNSET)
             return i;
 
     }
@@ -301,7 +308,7 @@ int SelectMove(GameInfo gi) {
 
 int main() {
 
-    Connection conn = Connection(40596, "ipp");
+    Connection conn = Connection(40596, "127.0.0.1");
     if(conn) {
 
         conn.sendString("{MyTeamName}");
@@ -318,12 +325,12 @@ int main() {
             PrintGameInfo(gameInfo);
 
             int x = SelectMove(gameInfo);
-            conn.send(x);
+            conn.sendInt(x);
 
         }
 
         std::cout << "Game Over!\n";
-        Print(GameInfo);
+        PrintGameInfo(gameInfo);
 
     }
 

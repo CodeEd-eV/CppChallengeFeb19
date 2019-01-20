@@ -87,6 +87,7 @@ class GameInfo {
 public:
 
     class Player {
+    public:
         std::string Name;
         FIELD_STATE Color; //This value is either YELLOW or RED, never UNSET!
     }Player1, Player2;
@@ -115,6 +116,8 @@ public:
 
 
 class Connection {
+public:
+
 
     Connection(std::uint16_t port, std::string ip) {
 
