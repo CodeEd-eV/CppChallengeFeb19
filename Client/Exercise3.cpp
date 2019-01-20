@@ -1,11 +1,9 @@
 //
-// Created by Oliver on 17-Jan-19.
+// Created by Oliver on 18-Jan-19.
 //
 
 
-
-//Template file for the cpp challenge
-
+//Very naive and simple solution to exercise3!
 
 #ifdef _WIN32
 
@@ -53,7 +51,7 @@ using SOCKET_TYPE = int;
 
 #endif //_WIN32
 
-#include <string>
+
 #include <iostream>
 
 //Start reading here, ignore above code.
@@ -113,48 +111,126 @@ public:
 };
 
 
+void PrintGameInfo(GameInfo gi) {
+
+
+    std::cout << "Player1: " << gi.Player1.Name << gi.Player1.Color == FIELD_STATE::RED ? " RED\n" : " YELLOW\n";
+    std::cout << "Player2: " << gi.Player2.Name << gi.Player2.Color == FIELD_STATE::RED ? " RED\n" : " Yellow\n";
+
+    switch(gi.Result) {
+        case GAME_RESULT::CONTINUE:
+            std::cout << "Continue game\n";
+            break;
+        case GAME_RESULT::YELLOW:
+            switch(gi.Reason) {
+                case RESULT_REASON::IRREGULAR_MOVE:
+                    std::cout << "Yellow won, reds move was invalid\n";
+                    break;
+
+                case RESULT_REASON::REGULAR:
+                    std::cout << "Yellow won\n";
+                    break;
+
+                case RESULT_REASON::TIMEOUT:
+                    std::cout << "Yellow won, red timed out\n";
+                    break;
+            }
+            break;
+
+        case GAME_RESULT::RED:
+            switch(gi.Reason) {
+                case RESULT_REASON::IRREGULAR_MOVE:
+                    std::cout << "Red won, yellows move was invalid\n";
+                    break;
+
+                case RESULT_REASON::REGULAR:
+                    std::cout << "Red won\n"
+                    break;
+
+                case RESULT_REASON::TIMEOUT:
+                    std::cout << "Red won, yellow timed out\n";
+                    break;
+            }
+            break;
+
+        case GAME_RESULT::DRAW:
+            std::cout << "Draw\n";
+            break;
+    }
+
+    for (int i = 0; i < 7; i++) {
+        for (int j = 0; j < 7; j++) {
+            switch (gi.Field[j][i]) {
+                case FIELD_STATE::UNSET:
+                    std::cout << '_';
+                    break;
+
+                case FIELD_STATE::YELLOW:
+                    std::cout << 'Y';
+                    break;
+
+                case FIELD_STATE::RED:
+                    std::cout << 'R';
+                    break;
+
+            }
+        }
+        std::cout << '\n';
+    }
+
+
+}
 
 class Connection {
 
     Connection(std::uint16_t port, std::string ip) {
 
-        //Part of exercise 2
-        //Create an IPv4 TCP/IP socket using the socket() function
+        sock = socket(AF_INET, SOCK_STREAM, IPPROTO_TCP);
+        if(sock != -1) {
 
-        //MSDN: https://docs.microsoft.com/de-de/previous-versions/technical-content/ms740506(v=vs.85)
-        //Manpage: http://man7.org/linux/man-pages/man2/socket.2.html
+            in_addr inAddr;
+            inet_pton(AF_INET, ip.c_str(), &inAddr);
 
-        //Hint: In this exercise, you can read the msdn too, if you use a linux or MacOs device.
-        //This is preferable, since the msdn contains way more information compared to the manpages.
+            sockaddr_in serverAddr;
+            serverAddr.sin_family = AF_INET;
+            serverAddr.sin_addr.s_addr = inAddr; //inet_addr works too, but is deprected!
+            serverAdder.sin_port = htons(port);
 
+            if(connect(sock, reinterpret_cast<sockaddr*>(&serverAddr), sizeof(serverAddr)) == -1) {
 
-        //use the connect() function to connect to the given port and IP-Address
+                ~Connect(); //Not very nice code, but it works
+
+            }
+
+        }
 
 
     }
 
     void sendInt(int i) {
 
-        //Part of Exercise 2
-        //Use the send() function
-        //If you want, you can change the return value to get better error information
+        send(sock, &i, sizeof(i), 0);
 
     }
 
     void sendString(std::string chars) {
 
-        //Part of Exercise 2
-        //Use the send() function
-        //If you want, you can change the return value to get better error information
-        //Hint: you get a pointer to the string buffer by calling chars.data() or chars.c_str()
+        send(sock, chars.c_str(), chars.size(), 0);
 
     }
 
     ~Connection() {
 
-        //Excercise 2
-        //on Windows use closesocket()
-        //otherwise use close()
+        if(sock != -1) {
+
+#ifdef _WIN32
+            closesocket(sock);
+#else
+            close(sock);
+#endif
+
+            sock = -1;
+        }
 
     }
 
@@ -211,20 +287,40 @@ private:
 int main() {
 
     Connection conn = Connection(40596, "ipp");
-
     if(conn) {
 
         conn.sendString("{MyTeamName}");
 
-        //TODO: Exercise 2, 3, 4, and 5
+        GameInfo gameInfo;
+        while(true) {
+
+            conn.receive(&gameInfo);
+
+            if(gameInfo.Result != GAME_RESULT::CONTINUE) {
+                break;
+            }
+
+            PrintGameInfo(gameInfo);
+
+            int x;
+            std::cin >> x;
+            conn.send(x);
+
+        }
+
+        std::cout << "Game Over!\n";
+        Print(GameInfo);
 
     }
-
-
-
 
     return 0;
 
 }
+
+
+
+
+
+
 
 

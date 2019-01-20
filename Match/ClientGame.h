@@ -36,7 +36,7 @@ std::array<Player, 2> CreateRandomAiAndClientPlayer(ClientPlayer&& cp, std::uint
 
 void SingleGame(std::array<Player, 2> players);
 
-
+void MultipleGames(std::array<Player, 2> players, std::uint32_t nGames);
 
 
 
