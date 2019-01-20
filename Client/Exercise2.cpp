@@ -40,6 +40,7 @@ WinInitNetSubsystem WinInitNetSubsystem::singleton = WinInitNetSubsystem();
 
 #else //Linux, MacOS, ....
 
+#include <cstring>
 #include <unistd.h>
 #include <errno.h>
 #include <sys/types.h>
@@ -114,9 +115,8 @@ public:
 
 void PrintGameInfo(GameInfo gi) {
 
-
-    std::cout << "Player1: " << gi.Player1.Name << ((gi.Player1.Color == FIELD_STATE::RED) ? " RED\n" : " YELLOW\n");
-    std::cout << "Player2: " << gi.Player2.Name << ((gi.Player2.Color == FIELD_STATE::RED) ? " RED\n" : " Yellow\n");
+    std::cout << "Player1: " << gi.Player1.Name << ((gi.Player1.Color == FIELD_STATE::RED) ? " Red\n" : " Yellow\n");
+    std::cout << "Player2: " << gi.Player2.Name << ((gi.Player2.Color == FIELD_STATE::RED) ? " Red\n" : " Yellow\n");
 
     switch(gi.Result) {
         case GAME_RESULT::CONTINUE:

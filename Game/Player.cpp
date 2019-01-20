@@ -3,6 +3,7 @@
 //
 
 #include "Player.h"
+#include <cstring>
 
 LLGameInfo MakeGameInfo(const ConnectFour& cf, const std::string& plname1,
                         FIELD_STATE col1, const std::string& plname2, FIELD_STATE col2,
@@ -58,11 +59,11 @@ void Player::setColor(FIELD_STATE col) noexcept {
 }
 
 
-constexpr PlayerError::PlayerError(const char *cc) noexcept : error(cc) {
+PlayerError::PlayerError(const char *cc) noexcept : error(cc) {
 
 }
 
-const char* PlayerError::what() const {
+const char* PlayerError::what() const noexcept {
 
     return error;
 

@@ -53,6 +53,7 @@ using SOCKET_TYPE = int;
 
 #endif //_WIN32
 
+#include <cstring>
 #include <string>
 #include <iostream>
 
@@ -213,7 +214,7 @@ private:
 
 int main() {
 
-    Connection conn = Connection(40596, "ipp");
+    Connection conn = Connection(40596, "TODO"); //Change to given IP Address
 
     if(conn) {
 
@@ -222,9 +223,6 @@ int main() {
         //TODO: Exercise 2, 3, 4, and 5
 
     }
-
-
-
 
     return 0;
 

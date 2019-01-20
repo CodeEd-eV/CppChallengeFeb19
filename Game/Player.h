@@ -17,9 +17,9 @@
 class PlayerError : public std::exception {
 public:
 
-    explicit constexpr PlayerError(const char* cc = nullptr) noexcept;
+    explicit PlayerError(const char* cc = nullptr) noexcept;
 
-    const char* what() const override;
+    const char* what() const noexcept override;
 
 private:
 

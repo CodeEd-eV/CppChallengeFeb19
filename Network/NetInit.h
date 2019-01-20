@@ -50,9 +50,9 @@ constexpr int SOCKET_ERROR = -1;
 
 constexpr auto NET_SOCK_ERR = static_cast<SOCKET_TYPE>(SOCKET_ERROR);
 
-inline int LastNetError();
+int LastNetError();
 
-inline void ShutdownSocket(SOCKET_TYPE sock);
+void ShutdownSocket(SOCKET_TYPE sock);
 
 
 enum class NET_RESULT {

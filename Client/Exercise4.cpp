@@ -51,6 +51,7 @@ using SOCKET_TYPE = int;
 
 #endif //_WIN32
 
+#include <cstring>
 #include <string>
 #include <iostream>
 
@@ -113,7 +114,6 @@ public:
 
 
 void PrintGameInfo(GameInfo gi) {
-
 
     std::cout << "Player1: " << gi.Player1.Name << ((gi.Player1.Color == FIELD_STATE::RED) ? " RED\n" : " YELLOW\n");
     std::cout << "Player2: " << gi.Player2.Name << ((gi.Player2.Color == FIELD_STATE::RED) ? " RED\n" : " Yellow\n");
@@ -179,6 +179,7 @@ void PrintGameInfo(GameInfo gi) {
         std::cout << '\n';
     }
 
+    std::cout << std::endl;
 
 }
 

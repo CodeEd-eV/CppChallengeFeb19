@@ -87,6 +87,9 @@ void SingleGame(std::array<Player, 2> player) {
                                                                         : GAME_RESULT::YELLOW;
                     player[0].tellGameState(field, player[1], winner, result);
                     player[1].tellGameState(field, player[0], winner, result);
+                    std::cout << player[i].getName()
+                            << ((result == RESULT_REASON::TIMEOUT) ? " timed out" : " did an irregular move")
+                            << std::endl;
                     GameOver = true;
                     break;
 
@@ -96,6 +99,7 @@ void SingleGame(std::array<Player, 2> player) {
                 //Player[i] lost the connection and has lost the game. We notify the winner with an IRREGULAR_MOVE
                 auto winner = player[i].getColor() == FIELD_STATE::YELLOW ? GAME_RESULT::RED : GAME_RESULT::YELLOW;
                 player[(i + 1) % 2].tellGameState(field, player[i], winner, RESULT_REASON::IRREGULAR_MOVE);
+                std::cout << player[i].getName() << " lost connection!" << std::endl;
                 return;
             }
 
@@ -107,25 +111,6 @@ void SingleGame(std::array<Player, 2> player) {
             }
 
         }
-
-        for (int i = 0; i < 7; i++){
-            for (int j = 0; j < 7; j++) {
-                switch (*field.at(std::tuple(j, i))) {
-                    case FIELD_STATE::RED:
-                        std::cout << 'R';
-                        break;
-                    case FIELD_STATE::YELLOW:
-                        std::cout << 'Y';
-                        break;
-                    case FIELD_STATE::UNSET:
-                        std::cout << '_';
-                        break;
-                }
-            }
-            std::cout << '\n';
-        }
-        std::cout << '\n' << std::endl;
-
 
     }
 
