@@ -309,7 +309,7 @@ int SelectMove(GameInfo gi) {
 
 int main() {
 
-    Connection conn = Connection(40596, "127.0.0.1");
+    Connection conn = Connection(40596, "13.80.22.187");
     if(conn) {
 
         conn.sendString("{MyTeamName}");
@@ -322,9 +322,11 @@ int main() {
 
             while (true) {
 
-                conn.receive(&gameInfo);
+                if(!conn.receive(&gameInfo)){
+                    gameInfo.Reason = RESULT_REASON::TIMEOUT;
+                }
 
-                if (gameInfo.Result != GAME_RESULT::CONTINUE) {
+                if (gameInfo.Reason != RESULT_REASON::REGULAR) {
                     break;
                 }
 

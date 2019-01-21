@@ -24,21 +24,6 @@ WinInitNetSubsystem WinInitNetSubsystem::singleton = WinInitNetSubsystem();
 
 #endif
 
-
-int LastNetError() {
-
-#ifdef _WIN32
-
-    return WSAGetLastError();
-
-#else
-
-    return errno;
-
-#endif
-
-}
-
 void ShutdownSocket(SOCKET_TYPE sock) {
 
 #ifdef _WIN32

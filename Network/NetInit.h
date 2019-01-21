@@ -50,8 +50,6 @@ constexpr int SOCKET_ERROR = -1;
 
 constexpr auto NET_SOCK_ERR = static_cast<SOCKET_TYPE>(SOCKET_ERROR);
 
-int LastNetError();
-
 void ShutdownSocket(SOCKET_TYPE sock);
 
 
@@ -98,20 +96,7 @@ private:
 template<typename T, typename>
 NET_RESULT Connection::receive(T& t) {
 
-    if (auto r = recv(sock, reinterpret_cast<char*>(&t), sizeof(std::remove_reference_t<T>), 0); r > 0) {
-
-        return NET_RESULT::OK;
-
-
-    } else if(r == 0) {
-
-        return NET_RESULT::FAILED;
-
-    } else {
-
-        return NET_RESULT::TIMEOUT;
-
-    }
+    return receive(&t, sizeof(T));
 
 }
 
@@ -122,14 +107,27 @@ NET_RESULT Connection::receive(T *data, std::int32_t bytes) {
 
         return NET_RESULT::OK;
 
-
     } else if(r == 0) {
 
         return NET_RESULT::FAILED;
 
     } else {
 
-        return NET_RESULT::TIMEOUT;
+#ifdef _WIN32
+
+        if(WSAGetLastError() == WSAETIMEDOUT) {
+            return NET_RESULT::TIMEOUT;
+        }
+
+#else
+
+        if(errno == EAGAIN || errno == EWOULDBLOCK) {
+            return NET_RESULT::TIMEOUT;
+        }
+
+#endif
+
+        return NET_RESULT::FAILED;
 
     }
 

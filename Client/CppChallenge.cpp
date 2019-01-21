@@ -214,7 +214,7 @@ private:
 
 int main() {
 
-    Connection conn = Connection(40596, "TODO"); //Change to given IP Address
+    Connection conn = Connection(40596, "13.80.22.187"); //Change to given IP Address
 
     if(conn) {
 

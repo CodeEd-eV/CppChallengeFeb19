@@ -309,7 +309,7 @@ int SelectMove(GameInfo gi) {
 
 int main() {
 
-    Connection conn = Connection(40596, "127.0.0.1");
+    Connection conn = Connection(40596, "13.80.22.187");
     if(conn) {
 
         conn.sendString("{MyTeamName}");

@@ -294,7 +294,7 @@ private:
 
 int main() {
 
-    Connection conn = Connection(40596, "127.0.0.1");
+    Connection conn = Connection(40596, "13.80.22.187");
     if(conn) {
 
         conn.sendString("{MyTeamName}");
@@ -302,7 +302,10 @@ int main() {
         GameInfo gameInfo;
         while(true) {
 
-            conn.receive(&gameInfo);
+            if(!conn.receive(&gameInfo)) {
+                std::cout << "Connection error\n";
+                break;
+            }
 
             if(gameInfo.Result != GAME_RESULT::CONTINUE) {
                 break;

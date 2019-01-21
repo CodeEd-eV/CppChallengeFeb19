@@ -25,18 +25,25 @@ int main() {
             auto player = CreateRandomAiAndClientPlayer(ClientPlayer(nameBuffer, std::move(connection)),
                                                         config % 2);
 
-            for(std::uint32_t ngames = 0; ngames < 2 + (config % 5); ngames++) {
+            try {
 
-                SingleGame(player);
+                for (std::uint32_t ngames = 0; ngames < 2 + (config % 5); ngames++) {
 
-                if(ngames % 2) { //Swap players every other game
-                    std::swap(player[0], player[1]);
+                    SingleGame(player);
+
+                    if (ngames % 2) { //Swap players every other game
+                        std::swap(player[0], player[1]);
+                    }
+                    if (ngames % 3) { //Swap colors from time to time
+                        auto colorP1 = player[0].getColor();
+                        player[0].setColor(player[1].getColor());
+                        player[1].setColor(colorP1);
+                    }
+
                 }
-                if (ngames %3) { //Swap colors from time to time
-                    auto colorP1 = player[0].getColor();
-                    player[0].setColor(player[1].getColor());
-                    player[1].setColor(colorP1);
-                }
+
+            }
+            catch(const PlayerError&) {
 
             }
 

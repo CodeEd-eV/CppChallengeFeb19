@@ -6,7 +6,7 @@
 
 
 
-
+#include <iostream>
 
 ClientPlayer::ClientPlayer(std::string nm, Connection&& con) : name(std::move(nm)), connection(std::move(con)) {
 
@@ -16,7 +16,16 @@ ClientPlayer::ClientPlayer(std::string nm, Connection&& con) : name(std::move(nm
 std::uint32_t ClientPlayer::chooseMove(ConnectFour& cf) {
 
     std::uint32_t x;
-    connection.receive(x);
+    switch(connection.receive(x)) {
+        case NET_RESULT::OK:
+            return x;
+
+        case NET_RESULT::TIMEOUT: //a timed out connection is in a unstable state (according to msdn),
+        std::cout << "Timeout\n";
+        case NET_RESULT::FAILED:  //so better treat it as failed. (X) but ok.
+            throw PlayerError();
+
+    }
     return x;
 
 
@@ -33,8 +42,6 @@ const std::string& ClientPlayer::getName() const {
     return name;
 
 }
-
-
 
 std::array<Player, 2> CreateRandomAiAndClientPlayer(ClientPlayer&& cp, std::uint32_t config) {
 
@@ -68,7 +75,6 @@ RESULT_REASON Move(ConnectFour& cf, Player& player, Player& other) {
 }
 
 
-#include <iostream>
 
 void SingleGame(std::array<Player, 2>& player) {
 
@@ -82,24 +88,20 @@ void SingleGame(std::array<Player, 2>& player) {
 
                 if (auto result = Move(field, player[i], player[(i + 1) % 2]); result !=
                                                                                RESULT_REASON::REGULAR) {
-                    auto winner =
-                            player[i].getColor() == FIELD_STATE::YELLOW ? GAME_RESULT::RED
-                                                                        : GAME_RESULT::YELLOW;
+                    auto winner = player[i].getColor() == FIELD_STATE::YELLOW ?
+                                                            GAME_RESULT::RED : GAME_RESULT::YELLOW;
                     player[0].tellGameState(field, player[1], winner, result);
                     player[1].tellGameState(field, player[0], winner, result);
-                    std::cout << player[i].getName()
-                            << ((result == RESULT_REASON::TIMEOUT) ? " timed out" : " did an irregular move")
-                            << std::endl;
+                    std::cout << player[i].getName() << " did an irregular move" << std::endl;
                     GameOver = true;
                     break;
 
                 }
 
             } catch (const PlayerError &) {
-                //Player[i] lost the connection and has lost the game. We notify the winner with an IRREGULAR_MOVE
+                //Player[i] lost the connection or timed out and has lost the game.
                 auto winner = player[i].getColor() == FIELD_STATE::YELLOW ? GAME_RESULT::RED : GAME_RESULT::YELLOW;
-                player[(i + 1) % 2].tellGameState(field, player[i], winner, RESULT_REASON::IRREGULAR_MOVE);
-                std::cout << player[i].getName() << " lost connection!" << std::endl;
+                player[(i + 1) % 2].tellGameState(field, player[i], winner, RESULT_REASON::TIMEOUT);
                 throw;
             }
 

@@ -296,7 +296,7 @@ private:
 
 int main() {
 
-    Connection conn = Connection(40596, "127.0.0.1");
+    Connection conn = Connection(40596, "13.80.22.187");
 
     if(conn) {
 
@@ -306,8 +306,6 @@ int main() {
         conn.receive(&gameInfo);
 
         PrintGameInfo(gameInfo);
-
-
 
     }
     else {
