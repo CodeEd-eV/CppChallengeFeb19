@@ -322,11 +322,9 @@ int main() {
 
             while (true) {
 
-                if(!conn.receive(&gameInfo)){
-                    gameInfo.Reason = RESULT_REASON::TIMEOUT;
-                }
+                conn.receive(&gameInfo);
 
-                if (gameInfo.Reason != RESULT_REASON::REGULAR) {
+                if (gameInfo.Result != GAME_RESULT::CONTINUE) {
                     break;
                 }
 

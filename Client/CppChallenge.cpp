@@ -115,8 +115,11 @@ public:
 };
 
 
-
 class Connection {
+private:
+
+    SOCKET_TYPE sock;
+
 public:
 
 
@@ -128,12 +131,20 @@ public:
         //MSDN: https://docs.microsoft.com/de-de/previous-versions/technical-content/ms740506(v=vs.85)
         //Manpage: http://man7.org/linux/man-pages/man2/socket.2.html
 
-        //Hint: In this exercise, you can read the msdn too, if you use a linux or MacOs device.
+        //Hint: In this exercise, you can read the msdn too, if you use a linux or MacOS device.
         //This is preferable, since the msdn contains way more information compared to the manpages.
 
 
         //use the connect() function to connect to the given port and IP-Address
+        //You get the underlying buffer of the string object by calling ip.c_str()
 
+
+    }
+
+    ~Connection() {
+
+        //Excercise 2
+        //close the socket!
 
     }
 
@@ -154,12 +165,6 @@ public:
 
     }
 
-    ~Connection() {
-
-        //Excercise 2
-        //close the socket!
-
-    }
 
     //returns true on success
     //already implemented, do not change!
@@ -204,16 +209,12 @@ public:
 
     }
 
-private:
-
-    SOCKET_TYPE sock;
-
 };
 
 
 int main() {
 
-    Connection conn = Connection(40596, "13.80.22.187"); //Change to given IP Address
+    Connection conn = Connection(40596, "13.80.22.187");
 
     if(conn) {
 

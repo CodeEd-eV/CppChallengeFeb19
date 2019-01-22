@@ -100,7 +100,7 @@ void SingleGame(std::array<Player, 2>& player) {
 
             } catch (const PlayerError &) {
                 //Player[i] lost the connection or timed out and has lost the game.
-                auto winner = player[i].getColor() == FIELD_STATE::YELLOW ? GAME_RESULT::RED : GAME_RESULT::YELLOW;
+                auto winner = (player[i].getColor() == FIELD_STATE::YELLOW ? GAME_RESULT::RED : GAME_RESULT::YELLOW);
                 player[(i + 1) % 2].tellGameState(field, player[i], winner, RESULT_REASON::TIMEOUT);
                 throw;
             }
