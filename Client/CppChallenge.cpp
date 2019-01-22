@@ -157,12 +157,12 @@ public:
     ~Connection() {
 
         //Excercise 2
-        //on Windows use closesocket()
-        //otherwise use close()
+        //close the socket!
 
     }
 
     //returns true on success
+    //already implemented, do not change!
     bool receive(GameInfo* gi) {
 
         if (gi == nullptr) {
@@ -197,7 +197,6 @@ public:
         return true;
 
     }
-
 
     operator bool() {
 
