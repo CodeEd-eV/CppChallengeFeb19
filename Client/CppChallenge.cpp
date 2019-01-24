@@ -194,7 +194,7 @@ public:
         gi->Player1.Color = llgi.Player[0].Color;
         gi->Player1.Name = llgi.Player[0].Name;
         gi->Player2.Color = llgi.Player[1].Color;
-        gi->Player2.Name = llgi.Player[1].Color;
+        gi->Player2.Name = llgi.Player[1].Name;
         gi->Result = llgi.Result;
         std::memcpy(gi->Field, llgi.Field, sizeof(LLGameInfo::Field));
         gi->Reason = llgi.Reason;
@@ -203,10 +203,8 @@ public:
 
     }
 
-    operator bool() {
-
-        sock != static_cast<decltype(sock)>(-1);
-
+    explicit operator bool() const noexcept {
+        return sock != static_cast<decltype(sock)>(-1);
     }
 
 };
