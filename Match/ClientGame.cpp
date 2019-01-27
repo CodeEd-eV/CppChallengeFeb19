@@ -28,7 +28,6 @@ std::uint32_t ClientPlayer::chooseMove(ConnectFour& cf) {
     }
     return x;
 
-
 }
 
 void ClientPlayer::tellGameState(const LLGameInfo& gameInfo) {
@@ -47,12 +46,12 @@ std::array<Player, 2> CreateRandomAiAndClientPlayer(ClientPlayer&& cp, std::uint
 
     switch (config) {
         case 0:
-            return {MakeRandomAIPlayer(FIELD_STATE::RED, 0), //Here: Beginner is always red
-                    Player(std::move(cp), FIELD_STATE::YELLOW, 1)};
+            return {MakeRandomAIPlayer(FIELD_STATE::RED), //Here: Beginner is always red
+                    Player(std::move(cp), FIELD_STATE::YELLOW)};
 
         case 1:
-            return {Player(std::move(cp), FIELD_STATE::RED, 0),
-                    MakeRandomAIPlayer(FIELD_STATE::YELLOW, 1)};
+            return {Player(std::move(cp), FIELD_STATE::RED),
+                    MakeRandomAIPlayer(FIELD_STATE::YELLOW)};
 
     }
 
@@ -64,13 +63,8 @@ std::array<Player, 2> CreateRandomAiAndClientPlayer(ClientPlayer&& cp, std::uint
 RESULT_REASON Move(ConnectFour& cf, Player& player, Player& other) {
 
     player.tellGameState(cf, other, GAME_RESULT::CONTINUE, RESULT_REASON::REGULAR);
-    if(auto mv = player.chooseMove(cf); mv != Player::TIMEOUT_MOVE) {
-
-        return Insert(cf, player.getColor(), mv);
-
-    }
-
-    return RESULT_REASON::TIMEOUT;
+    auto mv = player.chooseMove(cf);
+    return Insert(cf, player.getColor(), mv);
 
 }
 

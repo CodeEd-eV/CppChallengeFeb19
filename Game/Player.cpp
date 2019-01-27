@@ -72,7 +72,7 @@ const char* PlayerError::what() const noexcept {
 #include <random>
 #include <chrono>
 
-Player MakeRandomAIPlayer(FIELD_STATE color, std::uint32_t pnr) {
+Player MakeRandomAIPlayer(FIELD_STATE color) {
 
     class RandomPlayer {
     public:
@@ -118,7 +118,7 @@ Player MakeRandomAIPlayer(FIELD_STATE color, std::uint32_t pnr) {
 
     };
 
-    return Player(RandomPlayer("RandomAI"), color, pnr);
+    return Player(RandomPlayer("RandomAI"), color);
 
 }
 

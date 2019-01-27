@@ -37,7 +37,7 @@ public:
     Player() = default;
 
     template<typename T, typename = std::enable_if_t<!std::is_same_v<T, Player>>>
-    explicit Player(T&& p, FIELD_STATE col, std::uint32_t pnr);
+    explicit Player(T&& p, FIELD_STATE col);
 
     Player(Player&&) noexcept = default;
     Player& operator=(Player&&) noexcept = default;
@@ -75,7 +75,7 @@ private:
     class PlayerModel : public Concept {
     public:
 
-        PlayerModel(P&& p, FIELD_STATE col, std::uint32_t pnr);
+        PlayerModel(P&& p, FIELD_STATE col);
 
         std::uint32_t chooseMove(ConnectFour& cf) override;
 
@@ -89,7 +89,6 @@ private:
 
     private:
 
-        std::uint32_t playerNr;
         FIELD_STATE color;
         P player;
 
@@ -104,7 +103,7 @@ LLGameInfo MakeGameInfo(const ConnectFour& cf, const std::string& plname1,
                         FIELD_STATE col1, const std::string& plname2, FIELD_STATE col2,
                         GAME_RESULT result, RESULT_REASON rr);
 
-Player MakeRandomAIPlayer(FIELD_STATE color, std::uint32_t plnr);
+Player MakeRandomAIPlayer(FIELD_STATE color);
 
 
 #include "PlayerImpl.inl"

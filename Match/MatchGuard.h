@@ -9,17 +9,21 @@
 #include "ClientGame.h"
 
 #include <mutex>
-#include <unordered_set>
+#include <unordered_map>
 #include <string>
 #include <optional>
 #include <vector>
-#include <list>
-#include <memory>
 
 
 struct Game {
 
-    bool Finished;
+    enum STATE {
+        PENDING,
+        RUNNING,
+        FINISHED
+    };
+
+    STATE GameState = PENDING; //0 Pending, 1 running, 2 finished
 
     std::string TeamNames[2];
 
@@ -29,6 +33,31 @@ struct Game {
 
 std::vector<std::string> ReadNamesFromFile(std::string filepath);
 
+enum class PLAYER_STATE {
+
+    PENDING,
+    PLAYING,
+    CONNECTION_LOST,
+
+};
+
+struct GameResult {
+
+    inline GameResult(Game& g) : game(g) {};
+
+    Game& game;
+    struct {
+
+        std::string Name;
+        std::uint32_t Points;
+        PLAYER_STATE State;
+
+    }PlayerInfo[2];
+
+
+
+};
+
 class MatchMaking {
 public:
 
@@ -36,25 +65,25 @@ public:
 
     void checkinNewPlayer(Player&& cp);
 
-    void checkoutPlayer(std::string name);
+    void matchAndRunGames();
 
-    void setAsPending(Player&& cp1);
-
-    void lookForMatches();
+    void onGameReturn(GameResult gr);
 
     void executeCommand(std::string cmd);
 
 private:
 
-    void scheduleMatch(Player&& cp1, Player&& cp2);
-
-    void setMatchResult(const std::string& p1, const std::string& p2, int pts1, int pts2);
-
     std::mutex mtx;
 
-    std::unordered_set<std::string> names;
 
-    std::list<Player> pendingPlayers;
+
+    struct PlayerState {
+
+        PLAYER_STATE State;
+        Player player;
+
+    };
+    std::unordered_map<std::string, std::optional<PlayerState>> players;
 
     std::vector<Game> games;
 

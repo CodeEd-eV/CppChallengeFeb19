@@ -26,17 +26,14 @@ int main() {
 
             try {
 
-                for (std::uint32_t ngames = 0; ngames < 2 + (config % 5); ngames++) {
+                for (std::uint32_t ngames = 0; ngames < 2 + (config % 5); ngames++) { //Play a few games
 
                     SingleGame(player);
 
                     if (ngames % 2) { //Swap players every other game
                         std::swap(player[0], player[1]);
-                    }
-                    if (ngames % 3) { //Swap colors from time to time
-                        auto colorP1 = player[0].getColor();
-                        player[0].setColor(player[1].getColor());
-                        player[1].setColor(colorP1);
+                        player[0].setColor(FIELD_STATE::RED);
+                        player[1].setColor(FIELD_STATE::YELLOW);
                     }
 
                 }

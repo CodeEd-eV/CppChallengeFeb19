@@ -307,7 +307,7 @@ int SelectMove(GameInfo gi) {
 }
 
 
-int main() {
+int main(int argc, char** argv) {
 
     Connection conn = Connection(40596, "13.80.22.187");
     if(conn) {
