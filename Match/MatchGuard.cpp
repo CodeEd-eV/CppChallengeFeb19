@@ -9,6 +9,7 @@
 #include <thread>
 #include <fstream>
 #include <iostream>
+#include <iomanip>
 #include <array>
 
 
@@ -92,6 +93,7 @@ void MatchMaking::onGameReturn(GameResult gr) {
         gr.game.Points[i] = gr.PlayerInfo[i].Points;
 
         if(gr.PlayerInfo[i].State == PLAYER_STATE::CONNECTION_LOST) {
+            std::cout << gr.PlayerInfo[i].Name << " lost connection!\n";
             if(auto it = players.find(gr.PlayerInfo[i].Name); it != std::end(players)) {
                 it->second = std::nullopt;
             }
@@ -127,9 +129,10 @@ void MatchMaking::matchAndRunGames() {
                         (*secondPlayer->second).State = PLAYER_STATE::PLAYING;
                         g.GameState = Game::RUNNING;
 
-                        std::thread([this, player = std::array<Player*, 2>{&(*firstPlayer->second).player, &(*secondPlayer->second).player}] (Game& g) {
+                        //std::thread forwards argument by a decay_copy so you have to use a reference_wrapper
+                        std::thread([this, player = std::array<Player*, 2>{&(*firstPlayer->second).player,&(*secondPlayer->second).player}] (std::reference_wrapper<Game> g) {
 
-                            GameResult gameResult(g);
+                            GameResult gameResult(g.get());
                             for(int i : {0, 1}) {
                                 gameResult.PlayerInfo[i].Name = player[i]->getName();
                                 gameResult.PlayerInfo[i].State = PLAYER_STATE::PLAYING;
@@ -194,13 +197,112 @@ void MatchMaking::matchAndRunGames() {
 
                             this->onGameReturn(gameResult);
 
-                        }, g).detach();
+                        }, std::ref(g)).detach();
 
                     }
                 }
             }
         }
     }
+}
+
+void MatchMaking::executeCommand(const std::string &cmd) {
+
+    std::lock_guard lck(mtx);
+
+    if(cmd == "Print Table") {
+
+        struct TableEntry {
+
+            std::string Name;
+            int Points;
+            int TotalGamesPlayed;
+            int GameWon;
+            int Draws;
+            int GamesLost;
+
+
+        };
+
+        std::vector<TableEntry> table;
+
+        for(const auto& p : players) {
+            TableEntry tb = {p.first, 0, 0, 0, 0, 0};
+
+            for(const auto& g: games) {
+
+                if(g.GameState == Game::FINISHED) {
+                    for (int i : {0, 1}) {
+                        if (p.first == g.TeamNames[i]) {
+
+                            tb.Points += g.Points[i];
+                            tb.TotalGamesPlayed++;
+                            tb.Draws += g.Points[i] == 1 ? 1 : 0;
+                            tb.GameWon += g.Points[i] == 3 ? 1 : 0;
+                            tb.GamesLost += g.Points[i] == 0 ? 1 : 0;
+                        }
+
+                    }
+                }
+
+            }
+            table.push_back(tb);
+
+        }
+
+
+
+        std::sort(std::begin(table), std::end(table), [](const auto& e1, const auto& e2) {
+
+            return e1.Points < e2.Points;
+
+        });
+
+        std::cout << std::setw(20) << "Name" << std::setw(10) <<"Points"
+                  << std::setw(10) << "Games won" << std::setw(10) << "draws"
+                  << std::setw(10) << "Games lost" << std::setw(15) << "games played" << std::endl;
+        for(const auto& t : table) {
+            std::cout << std::setw(20) << t.Name << std::setw(10) << t.Points
+                        << std::setw(10) << t.GameWon << std::setw(10) << t.Draws
+                        << std::setw(10) << t.GamesLost << std::setw(15) << t.TotalGamesPlayed << std::endl;
+
+        }
+
+    }
+    else if (cmd == "Print Games") {
+
+        for(const auto& e: games) {
+            std::cout << std::setw(15) << e.TeamNames[0] << "[" << e.Points[0] << "]"
+                        << " vs. " << std::setw(15) << e.TeamNames[1] << "[" << e.Points[1] << "] ";
+
+            switch(e.GameState) {
+                case Game::PENDING:
+                    std::cout << "Pending ";
+                    break;
+                case Game::RUNNING:
+                    std::cout << "Running ";
+                    break;
+                case Game::FINISHED:
+                    std::cout << "Finished ";
+                    break;
+            }
+            std::cout << "\n";
+        }
+
+    }
+    else if (cmd == "Print Players") {
+
+        for(const auto& e : players) {
+
+            std::cout << e.first << (e.second.has_value() ? "Connected" : "Disconnected");
+
+
+        }
+
+
+    }
+
+
 }
 
 

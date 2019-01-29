@@ -15,12 +15,15 @@
 
 int main(int argc, char** argv) {
 
+    /*
     if(argc < 2) {
         std::cout << "Specify Team list!" << std::endl;
         return -1;
     }
+    */
 
-    auto names = ReadNamesFromFile(argv[1]);
+    std::vector<std::string> names = {"Team1", "Team2"};
+    //auto names = ReadNamesFromFile(argv[1]);
 
     MatchMaking mk(names);
 
@@ -53,7 +56,14 @@ int main(int argc, char** argv) {
         std::string cmd;
         std::getline(std::cin, cmd);
 
-        //Interpret command!!!
+        if(cmd == "server shutdown") {
+            server.shutdown();
+            break;
+        } else {
+
+            mk.executeCommand(cmd);
+
+        }
 
     }
 

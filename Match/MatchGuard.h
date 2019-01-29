@@ -23,7 +23,7 @@ struct Game {
         FINISHED
     };
 
-    STATE GameState = PENDING; //0 Pending, 1 running, 2 finished
+    STATE GameState = PENDING;
 
     std::string TeamNames[2];
 
@@ -69,13 +69,11 @@ public:
 
     void onGameReturn(GameResult gr);
 
-    void executeCommand(std::string cmd);
+    void executeCommand(const std::string& cmd);
 
 private:
 
     std::mutex mtx;
-
-
 
     struct PlayerState {
 
